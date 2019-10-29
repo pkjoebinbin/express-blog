@@ -6,8 +6,19 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
 var app = express();
+
+import mysql from 'mysql'
+import mysqlConfig from './config/mysqlConfig'
+
+const connection = mysql.createConnection(mysqlConfig)
+
+connection.connect()
+
+var sql = 'SELECT * FROM t_user'
+
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -36,6 +47,21 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+
+app.get('/', function(req, res){
+  res.send('Hello,myServer'); //服务器响应请求
+  connection.query(sql, function (err,result) {
+    if(err){
+        console.log('[SELECT ERROR]:',err.message);
+    }
+    console.log(result);  //数据库查询结果返回到result中
+  })
+})
+
+app.listen(8081,function(){   //监听3000端口
+  console.log("正在监听8081端口");
 });
 
 module.exports = app;
